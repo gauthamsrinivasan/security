@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSA Encryption</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>RSA Algorithm</h1>
+        <label for="plaintext">Enter Plaintext:</label>
+        <input type="text" id="plaintext">
+        <br>
+        <label for="p">Enter P:</label>
+        <input type="number" id="p">
+        <br>
+        <label for="q">Enter Q:</label>
+        <input type="number" id="q">
+        <br>
+        <label for="e">Enter E:</label>
+        <input type="number" id="e">
+        <br>
+        <button onclick="encryptDecryption()">Encrypt & Decrypt</button>
+        <h2>Ciphertext:</h2>
+        <div id="ciphertext"></div>
+
+        <h2>Decryptedtext:</h2>
+        <div id="decryptedtext"></div>
+
+    </div>
+
+    <script>
+        //encryption and decryption
+        function encryptDecryption() {
+            var plaintext = document.getElementById("plaintext").value;
+            var p = parseInt(document.getElementById("p").value);
+            var q = parseInt(document.getElementById("q").value);
+            var e = parseInt(document.getElementById("e").value);
+
+            // Calculate fi(n)
+            var fi_n = (p - 1) * (q - 1);
+
+            // Calculate D (modular inverse of E modulo fi(n))
+            var d = modInverse(e, fi_n);
+
+            // Encrypt each character in the plaintext
+            var ciphertext = "";
+            for (var i = 0; i < plaintext.length; i++) {
+                var charCode = plaintext.charCodeAt(i) - 97;
+                var encryptedCharCode = modPow(charCode, e, p * q);
+                ciphertext += encryptedCharCode.toString() + " ";
+            }
+
+            document.getElementById("ciphertext").innerText = ciphertext;
+
+            // Decrypt each character in the ciphertext
+            var decryptedtext = "";
+            var ciphertextArray = ciphertext.trim().split(" "); // Split ciphertext into an array of integers
+            for (var i = 0; i < ciphertextArray.length; i++) {
+                var encryptedCharCode = parseInt(ciphertextArray[i]);
+                var decryptedCharCode = modPow(encryptedCharCode, d, p * q);
+                decryptedtext += String.fromCharCode(decryptedCharCode + 97);
+            }
+            document.getElementById("decryptedtext").innerText = decryptedtext;
+        }
+
+        // Function to calculate the modular inverse
+        function modInverse(a, m) {
+            for (var i = 1; i < m; i++) {
+                if ((a * i) % m === 1) {
+                    return i;
+                }
+            }
+            return 1;
+        }
+
+        // Function to calculate (base ^ exponent) mod modulus
+        function modPow(base, exponent, modulus) {
+            if (modulus === 1) return 0;
+            var result = 1;
+            base = base % modulus;
+            while (exponent > 0) {
+                if (exponent % 2 === 1) {
+                    result = (result * base) % modulus;
+                }
+                exponent = Math.floor(exponent / 2);
+                base = (base * base) % modulus;
+            }
+            return result;
+        }
+    </script>
+</body>
+
+</html>
